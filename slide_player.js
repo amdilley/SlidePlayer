@@ -134,7 +134,7 @@ SlidePlayer.prototype = {
    * Handles video end event.
    */
   onEnd: function () {
-
+    // TODO: add cleanup functions.
   },
 
   /*
