@@ -1,14 +1,17 @@
 // Depends on YouTube API available here:
 // https://s.ytimg.com/yts/jsbin/www-widgetapi-vflWykQrU/www-widgetapi.js
-var SlidePlayer = function (containerId, options) {
+var SlidePlayer = function (playerOptions, slideOptions) {
+  this.slidesContainer = document.getElementById(slideOptions.containerId);
+  this.slides = slideOptions.slides || [];
   this.events = [];
   this.currentTimeouts = [];
   this.initCallbacks = [];
+  this.slideIndex = -1;
   
-  new YT.Player(containerId, {
-    width: options.width,
-    height: options.height,
-    videoId: options.videoId,
+  new YT.Player(playerOptions.containerId, {
+    width: playerOptions.width,
+    height: playerOptions.height,
+    videoId: playerOptions.videoId,
     events: {
       'onReady': this.init.bind(this),
       'onStateChange': this.onChange.bind(this)
@@ -42,6 +45,19 @@ SlidePlayer.prototype = {
   },
 
   /*
+   * Inserts slide in slide container and updates slide index.
+   * @param {number} index index of desired slide
+   */
+  goToSlide: function (index) {
+    var slide = this.slides[index];
+
+    if (slide) {
+      this.loadSlide(this.slides[index]);
+      this.slideIndex = index;
+    }
+  },
+
+  /*
    * Hides YouTube player.
    */
   hide: function () {
@@ -64,6 +80,21 @@ SlidePlayer.prototype = {
     for (var i = 0; i < this.events.length; i++) {
       this.events[i].time = this.parseTime(this.events[i].time);
     }
+  },
+
+  /*
+   * Inserts HTML into slide container.
+   * @param {string} slide HTML to be inserted in slide container
+   */
+  loadSlide: function (slide) {
+    this.slidesContainer.innerHTML = slide;
+  },
+
+  /*
+   * Go to next slide relative to current slide index.
+   */
+  nextSlide: function () {
+    this.goToSlide(this.slideIndex + 1);
   },
 
   /*
@@ -156,6 +187,13 @@ SlidePlayer.prototype = {
     } else {
       this.initCallbacks.push(this.play.bind(this));
     }
+  },
+
+  /*
+   * Go to prev slide relative to current slide index.
+   */
+  prevSlide: function () {
+    this.goToSlide(this.slideIndex - 1);
   },
 
   /*
